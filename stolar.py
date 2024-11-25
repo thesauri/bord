@@ -90,27 +90,11 @@ class Game:
         for chair in self.chairs:
             pyxel.circ(chair[0], chair[1], self.chair_radius, 4)
             pyxel.circ(chair[0], chair[1], self.chair_radius - 1, 5)
-            # pyxel.rect(chair[0], chair[1], chair[2], chair[3], 4)  # Dark brown
-            # pyxel.rect(
-            #     chair[0] + 1,
-            #     chair[1] + 1,
-            #     chair[2] - 2,
-            #     chair[3] - 2,
-            #     5
-            # )  # Medium brown
 
         # Draw tables
         for table in self.tables:
             pyxel.circ(table[0], table[1], self.table_radius, 4)
             pyxel.circ(table[0], table[1], self.table_radius - 1, 9)
-            # pyxel.rect(table[0] - table_width / 2, table[1] - table_height / 2, table[0] + table_width / 2, table[1] + table_height / 2, 4)  # Dark brown
-            # pyxel.rect(
-            #     table[0] - table_width / 2 - 2,
-            #     table[1] - table_height / 2 + 2,
-            #     table[0] - table_width / 2 + 2,
-            #     table[1] - table_height / 2 + 2,
-            #     9
-            # )  # Light brown
 
         # Draw player
         pyxel.rect(self.player_x, self.player_y, self.player_size, self.player_size, 8)
