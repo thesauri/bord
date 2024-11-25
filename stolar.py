@@ -10,6 +10,8 @@ class Game:
         self.cart_width = 40
         self.cart_height = 20
         self.max_capacity = 4
+        self.table_capacity = 3
+        self.chair_capacity = 1
 
         pyxel.init(self.width, self.height, title="Room with Tables and Chairs")
 
@@ -62,9 +64,9 @@ class Game:
                 x < self.wall_thickness + self.player_radius
         )
 
-    def hits_chair(self, chair):
-        cx, cy = chair
-        return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(self.chair_radius + self.player_radius, 2)
+    def hits_circular_object(self, position, radius):
+        cx, cy = position
+        return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(radius + self.player_radius, 2)
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -87,9 +89,14 @@ class Game:
             self.player_y = original_y
 
         for chair in self.chairs:
-            if self.hits_chair(chair) and self.capacity + 1 <= self.max_capacity:
+            if self.hits_circular_object(chair, self.chair_radius) and self.capacity + self.chair_capacity <= self.max_capacity:
                 self.capacity += 1
                 self.chairs.remove(chair)
+
+        for table in self.tables:
+            if self.hits_circular_object(table, self.table_radius) and self.capacity + self.table_capacity <= self.max_capacity:
+                self.capacity += 3
+                self.tables.remove(table)
 
     def draw(self):
         # Clear screen
