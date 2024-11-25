@@ -9,6 +9,7 @@ class Game:
         self.chair_offset = 2
         self.cart_width = 40
         self.cart_height = 20
+        self.max_capacity = 4
 
         pyxel.init(self.width, self.height, title="Room with Tables and Chairs")
 
@@ -20,6 +21,7 @@ class Game:
         self.player_x = self.width / 2 - self.cart_width / 4 - self.player_radius / 2
         self.player_y = self.height - self.cart_height / 2 - self.player_radius / 2
         self.player_speed = 2
+        self.capacity = 0
 
         # Cart (for returning stuff)
         self.cart = [
@@ -85,7 +87,8 @@ class Game:
             self.player_y = original_y
 
         for chair in self.chairs:
-            if self.hits_chair(chair):
+            if self.hits_chair(chair) and self.capacity + 1 <= self.max_capacity:
+                self.capacity += 1
                 self.chairs.remove(chair)
 
     def draw(self):
@@ -124,5 +127,14 @@ class Game:
             self.player_radius - 1,
             9
         )
+
+        # Draw capacity indicator
+        for n in range(0, self.max_capacity):
+            red_if_used_otherwise_green = 8 if self.capacity >= n else 11
+            pyxel.rect(
+                2*n + self.player_x + self.player_radius, self.player_y - self.player_radius - 2,
+                1, 1, red_if_used_otherwise_green
+            )
+
 
 Game()
