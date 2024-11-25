@@ -40,6 +40,14 @@ class Game:
                     self.width / 2 - self.cart_width / 4 - 2,
                     self.height - self.cart_height / 2 - 2
                 ]
+            ),
+            Player(
+                self,
+                dumbster.get_action,
+                [
+                    self.width / 2 + self.cart_width / 4 - 2,
+                    self.height - self.cart_height / 2 - 2
+                ]
             )
         ]
 
@@ -85,7 +93,12 @@ class Game:
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
-        if len(self.chairs) == 0 and len(self.tables) == 0:
+        is_all_capacity_zero = True
+        for player in self.players:
+            if not player.capacity == 0:
+               is_all_capacity_zero = False
+
+        if is_all_capacity_zero and len(self.chairs) == 0 and len(self.tables) == 0:
             self.is_game_over = True
             return
 

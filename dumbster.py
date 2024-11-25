@@ -3,7 +3,7 @@ import pyxel
 player_radius = 4
 
 def get_action(position, capacity, chairs, tables, cart):
-    if capacity > 1:
+    if capacity > 1 or (len(chairs) == 0 and len(tables) == 0):
         return get_direction(
             position,
             [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2]
