@@ -122,6 +122,7 @@ class Game:
                     self.tables.remove(table)
 
             if is_player_overlapping_rectangle(player, self.cart):
+                player.score += player.capacity
                 player.capacity = 0
 
     def draw(self):
@@ -171,7 +172,15 @@ class Game:
                 )
 
         if self.is_game_over:
-            pyxel.text(self.width/2 - 18, self.height/2, "Game over", pyxel.frame_count % 16)
+            pyxel.text(self.width/2 - 18, self.height/2 - 20, "Game over", pyxel.frame_count % 16)
+
+            for i, player in enumerate(self.players):
+                pyxel.text(
+                    self.width/2 - 32,
+                    self.height/2 + 10*i,
+                    f"Player {i+1}: {player.score} points",
+                    pyxel.frame_count % 16
+                )
 
 
 class Player:
@@ -185,6 +194,7 @@ class Player:
         self.player_speed = 2
         self.capacity = 0
         self.max_capacity = 4
+        self.score = 0
 
     def update(self, chairs, tables, cart):
         action = dumbster.get_action(
