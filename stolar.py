@@ -7,6 +7,8 @@ class Game:
         self.table_radius = 8
         self.chair_radius = 2
         self.chair_offset = 2
+        self.cart_width = 40
+        self.cart_height = 20
 
         pyxel.init(self.width, self.height, title="Room with Tables and Chairs")
 
@@ -15,9 +17,15 @@ class Game:
 
         # Player properties
         self.player_size = 8
-        self.player_x = 80  # Center horizontally
-        self.player_y = 100  # Near bottom
+        self.player_x = self.width/2 - self.cart_width/4 - self.player_size/2
+        self.player_y = self.height - self.cart_height/2 - self.player_size/2
         self.player_speed = 2
+
+        # Cart (for returning stuff)
+        self.cart = [
+            self.width/2 - self.cart_width/2, self.height - self.cart_height,
+            self.cart_width, self.cart_height
+        ]
 
         # Table properties [x, y, width, height]
         self.tables = [
@@ -85,6 +93,10 @@ class Game:
             self.height - 2 * self.wall_thickness,
             0
         )  # Inner room
+
+        # Draw cart
+        pyxel.rect(self.cart[0], self.cart[1], self.cart[2], self.cart[3], 1)
+        pyxel.rect(self.cart[0] + 1, self.cart[1] + 1, self.cart[2] - 2, self.cart[3] - 1, 2)
 
         # Draw chairs
         for chair in self.chairs:
