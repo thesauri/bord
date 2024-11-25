@@ -68,6 +68,13 @@ class Game:
         cx, cy = position
         return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(radius + self.player_radius, 2)
 
+    def overlaps_rectangle(self, rectangle):
+        rx, ry, rw, rh = rectangle
+        return self.player_x > rx and \
+            self.player_y > ry and \
+            self.player_x < rx + rw and \
+            self.player_y < ry + rh
+
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
@@ -97,6 +104,9 @@ class Game:
             if self.hits_circular_object(table, self.table_radius) and self.capacity + self.table_capacity <= self.max_capacity:
                 self.capacity += 3
                 self.tables.remove(table)
+
+        if self.overlaps_rectangle(self.cart):
+            self.capacity = 0
 
     def draw(self):
         # Clear screen
@@ -137,7 +147,7 @@ class Game:
 
         # Draw capacity indicator
         for n in range(0, self.max_capacity):
-            red_if_used_otherwise_green = 8 if self.capacity >= n else 11
+            red_if_used_otherwise_green = 8 if self.capacity > n else 11
             pyxel.rect(
                 2*n + self.player_x + self.player_radius, self.player_y - self.player_radius - 2,
                 1, 1, red_if_used_otherwise_green
