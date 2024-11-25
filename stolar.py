@@ -81,8 +81,8 @@ class Game:
         pyxel.rect(
             self.wall_thickness,
             self.wall_thickness,
-            160 - 2 * self.wall_thickness,
-            120 - 2 * self.wall_thickness,
+            self.width - 2 * self.wall_thickness,
+            self.height - 2 * self.wall_thickness,
             0
         )  # Inner room
 
