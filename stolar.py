@@ -1,5 +1,16 @@
 import pyxel
 
+def get_action(position, capacity, chairs, tables):
+    if pyxel.btn(pyxel.KEY_LEFT):
+        return "LEFT"
+    if pyxel.btn(pyxel.KEY_RIGHT):
+        return "RIGHT"
+    if pyxel.btn(pyxel.KEY_UP):
+        return "UP"
+    if pyxel.btn(pyxel.KEY_DOWN):
+        return "DOWN"
+    return "STOP"
+
 class Game:
     def __init__(self):
         self.width = 160
@@ -87,13 +98,20 @@ class Game:
         original_x = self.player_x
         original_y = self.player_y
 
-        if pyxel.btn(pyxel.KEY_LEFT):
+        action = get_action(
+            [self.player_x, self.player_y],
+            self.capacity,
+            self.chairs,
+            self.tables
+        )
+
+        if action == "LEFT":
             self.player_x -= self.player_speed
-        if pyxel.btn(pyxel.KEY_RIGHT):
+        if action == "RIGHT":
             self.player_x += self.player_speed
-        if pyxel.btn(pyxel.KEY_UP):
+        if action == "UP":
             self.player_y -= self.player_speed
-        if pyxel.btn(pyxel.KEY_DOWN):
+        if action == "DOWN":
             self.player_y += self.player_speed
 
         if self.would_hit_wall(self.player_x, self.player_y):
