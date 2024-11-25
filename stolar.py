@@ -1,15 +1,5 @@
 import pyxel
-
-def get_action(position, capacity, chairs, tables):
-    if pyxel.btn(pyxel.KEY_LEFT):
-        return "LEFT"
-    if pyxel.btn(pyxel.KEY_RIGHT):
-        return "RIGHT"
-    if pyxel.btn(pyxel.KEY_UP):
-        return "UP"
-    if pyxel.btn(pyxel.KEY_DOWN):
-        return "DOWN"
-    return "STOP"
+import dumbster
 
 class Game:
     def __init__(self):
@@ -98,11 +88,12 @@ class Game:
         original_x = self.player_x
         original_y = self.player_y
 
-        action = get_action(
+        action = dumbster.get_action(
             [self.player_x, self.player_y],
             self.capacity,
             self.chairs,
-            self.tables
+            self.tables,
+            self.cart
         )
 
         if action == "LEFT":
