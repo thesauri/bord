@@ -16,9 +16,9 @@ class Game:
         self.wall_thickness = 4
 
         # Player properties
-        self.player_size = 4
-        self.player_x = self.width/2 - self.cart_width/4 - self.player_size/2
-        self.player_y = self.height - self.cart_height/2 - self.player_size/2
+        self.player_radius = 4
+        self.player_x = self.width / 2 - self.cart_width / 4 - self.player_radius / 2
+        self.player_y = self.height - self.cart_height / 2 - self.player_radius / 2
         self.player_speed = 2
 
         # Cart (for returning stuff)
@@ -54,15 +54,15 @@ class Game:
     def would_hit_wall(self, x, y):
         """Check if position would collide with any wall"""
         return (
-                x < self.wall_thickness or
-                x + self.player_size > 160 - self.wall_thickness or
-                y < self.wall_thickness or
-                y + self.player_size > 120 - self.wall_thickness
+                y < self.wall_thickness + self.player_radius or
+                x > self.width - self.wall_thickness - self.player_radius or
+                y > self.height - self.wall_thickness - self.player_radius or
+                x < self.wall_thickness + self.player_radius
         )
 
     def hits_chair(self, chair):
         cx, cy = chair
-        return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(self.chair_radius + self.player_size, 2)
+        return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(self.chair_radius + self.player_radius, 2)
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -93,7 +93,7 @@ class Game:
         pyxel.cls(1)
 
         # Draw walls
-        pyxel.rect(0, 0, 160, 120, 5)  # Outer wall
+        pyxel.rect(0, 0, self.width, self.height, 5)  # Outer wall
         pyxel.rect(
             self.wall_thickness,
             self.wall_thickness,
@@ -117,11 +117,11 @@ class Game:
             pyxel.circ(table[0], table[1], self.table_radius - 1, 9)
 
         # Draw player
-        pyxel.circ(self.player_x, self.player_y, self.player_size, 8)
+        pyxel.circ(self.player_x, self.player_y, self.player_radius, 8)
         pyxel.circ(
             self.player_x,
             self.player_y,
-            self.player_size - 1,
+            self.player_radius - 1,
             9
         )
 
