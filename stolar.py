@@ -1,6 +1,18 @@
 import pyxel
 import dumbster
 
+def is_player_overlapping_circular_object(player, position, radius):
+    cx, cy = position
+    return pow(cx - player.position[0], 2) + pow(cy - player.position[1], 2) < pow(radius + player.player_radius, 2)
+
+
+def is_player_overlapping_rectangle(player, rectangle):
+    rx, ry, rw, rh = rectangle
+    return player.position[0] > rx and \
+        player.position[1] > ry and \
+        player.position[0] < rx + rw and \
+        player.position[1] < ry + rh
+
 class Game:
     def __init__(self):
         self.width = 160
@@ -10,7 +22,6 @@ class Game:
         self.chair_offset = 2
         self.cart_width = 40
         self.cart_height = 20
-        self.max_capacity = 4
         self.table_capacity = 3
         self.chair_capacity = 1
         self.is_game_over = False
@@ -20,12 +31,17 @@ class Game:
         # Wall properties
         self.wall_thickness = 4
 
-        # Player properties
-        self.player_radius = 4
-        self.player_x = self.width / 2 - self.cart_width / 4 - self.player_radius / 2
-        self.player_y = self.height - self.cart_height / 2 - self.player_radius / 2
-        self.player_speed = 2
-        self.capacity = 0
+        # Players
+        self.players = [
+            Player(
+                self,
+                dumbster.get_action,
+                [
+                    self.width / 2 - self.cart_width / 4 - 2,
+                    self.height - self.cart_height / 2 - 2
+                ]
+            )
+        ]
 
         # Cart (for returning stuff)
         self.cart = [
@@ -57,25 +73,13 @@ class Game:
 
         pyxel.run(self.update, self.draw)
 
-    def would_hit_wall(self, x, y):
-        """Check if position would collide with any wall"""
+    def is_player_hitting_wall(self, player):
         return (
-                y < self.wall_thickness + self.player_radius or
-                x > self.width - self.wall_thickness - self.player_radius or
-                y > self.height - self.wall_thickness - self.player_radius or
-                x < self.wall_thickness + self.player_radius
+                player.position[1] < self.wall_thickness + player.player_radius or
+                player.position[0] > self.width - self.wall_thickness - player.player_radius or
+                player.position[1] > self.height - self.wall_thickness - player.player_radius or
+                player.position[0] < self.wall_thickness + player.player_radius
         )
-
-    def hits_circular_object(self, position, radius):
-        cx, cy = position
-        return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(radius + self.player_radius, 2)
-
-    def overlaps_rectangle(self, rectangle):
-        rx, ry, rw, rh = rectangle
-        return self.player_x > rx and \
-            self.player_y > ry and \
-            self.player_x < rx + rw and \
-            self.player_y < ry + rh
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -85,42 +89,27 @@ class Game:
             self.is_game_over = True
             return
 
-        original_x = self.player_x
-        original_y = self.player_y
+        for player in self.players:
+            original_position = player.position
 
-        action = dumbster.get_action(
-            [self.player_x, self.player_y],
-            self.capacity,
-            self.chairs,
-            self.tables,
-            self.cart
-        )
+            player.update(self.chairs, self.tables, self.cart)
 
-        if action == "LEFT":
-            self.player_x -= self.player_speed
-        if action == "RIGHT":
-            self.player_x += self.player_speed
-        if action == "UP":
-            self.player_y -= self.player_speed
-        if action == "DOWN":
-            self.player_y += self.player_speed
+            if self.is_player_hitting_wall(player):
+                player.position = original_position
 
-        if self.would_hit_wall(self.player_x, self.player_y):
-            self.player_x = original_x
-            self.player_y = original_y
+            for chair in self.chairs:
+                if is_player_overlapping_circular_object(player, chair, self.chair_radius) and \
+                        player.capacity + self.chair_capacity <= player.max_capacity:
+                    player.capacity += 1
+                    self.chairs.remove(chair)
 
-        for chair in self.chairs:
-            if self.hits_circular_object(chair, self.chair_radius) and self.capacity + self.chair_capacity <= self.max_capacity:
-                self.capacity += 1
-                self.chairs.remove(chair)
+            for table in self.tables:
+                if is_player_overlapping_circular_object(player, table, self.table_radius) and player.capacity + self.table_capacity <= player.max_capacity:
+                    player.capacity += 3
+                    self.tables.remove(table)
 
-        for table in self.tables:
-            if self.hits_circular_object(table, self.table_radius) and self.capacity + self.table_capacity <= self.max_capacity:
-                self.capacity += 3
-                self.tables.remove(table)
-
-        if self.overlaps_rectangle(self.cart):
-            self.capacity = 0
+            if is_player_overlapping_rectangle(player, self.cart):
+                player.capacity = 0
 
     def draw(self):
         # Clear screen
@@ -150,24 +139,56 @@ class Game:
             pyxel.circ(table[0], table[1], self.table_radius, 4)
             pyxel.circ(table[0], table[1], self.table_radius - 1, 9)
 
-        # Draw player
-        pyxel.circ(self.player_x, self.player_y, self.player_radius, 8)
-        pyxel.circ(
-            self.player_x,
-            self.player_y,
-            self.player_radius - 1,
-            9
-        )
-
-        # Draw capacity indicator
-        for n in range(0, self.max_capacity):
-            red_if_used_otherwise_green = 8 if self.capacity > n else 11
-            pyxel.rect(
-                2*n + self.player_x + self.player_radius, self.player_y - self.player_radius - 2,
-                1, 1, red_if_used_otherwise_green
+        # Draw the players
+        for player in self.players:
+            pyxel.circ(player.position[0], player.position[1], player.player_radius, 8)
+            pyxel.circ(
+                player.position[0],
+                player.position[1],
+                player.player_radius - 1,
+                9
             )
+
+            # Draw capacity indicator
+            for n in range(0, player.max_capacity):
+                red_if_used_otherwise_green = 8 if player.capacity > n else 11
+                pyxel.rect(
+                    2*n + player.position[0] + player.player_radius, player.position[1] - player.player_radius - 2,
+                    1, 1, red_if_used_otherwise_green
+                )
 
         if self.is_game_over:
             pyxel.text(self.width/2 - 18, self.height/2, "Game over", pyxel.frame_count % 16)
+
+
+class Player:
+    def __init__(self, game, get_action, start_position):
+        self.game = game
+        self.get_action = get_action
+
+        # Player properties
+        self.player_radius = 4
+        self.position = start_position
+        self.player_speed = 2
+        self.capacity = 0
+        self.max_capacity = 4
+
+    def update(self, chairs, tables, cart):
+        action = dumbster.get_action(
+            self.position,
+            self.capacity,
+            chairs,
+            tables,
+            cart
+        )
+
+        if action == "LEFT":
+            self.position[0] -= self.player_speed
+        if action == "RIGHT":
+            self.position[0] += self.player_speed
+        if action == "UP":
+            self.position[1] -= self.player_speed
+        if action == "DOWN":
+            self.position[1] += self.player_speed
 
 Game()
