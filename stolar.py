@@ -16,7 +16,7 @@ class Game:
         self.wall_thickness = 4
 
         # Player properties
-        self.player_size = 8
+        self.player_size = 4
         self.player_x = self.width/2 - self.cart_width/4 - self.player_size/2
         self.player_y = self.height - self.cart_height/2 - self.player_size/2
         self.player_speed = 2
@@ -36,7 +36,7 @@ class Game:
             [3/4 * self.width, 3/4 * self.height],   # Bottom right table
         ]
 
-        # Chair properties [x, y, width, height]
+        # Chair properties [x, y, id]
         self.chairs = []
         # Add chairs around each table
         for table in self.tables:
@@ -60,6 +60,10 @@ class Game:
                 y + self.player_size > 120 - self.wall_thickness
         )
 
+    def hits_chair(self, chair):
+        cx, cy = chair
+        return pow(cx - self.player_x, 2) + pow(cy - self.player_y, 2) < pow(self.chair_radius + self.player_size, 2)
+
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
@@ -79,6 +83,10 @@ class Game:
         if self.would_hit_wall(self.player_x, self.player_y):
             self.player_x = original_x
             self.player_y = original_y
+
+        for chair in self.chairs:
+            if self.hits_chair(chair):
+                self.chairs.remove(chair)
 
     def draw(self):
         # Clear screen
@@ -109,12 +117,11 @@ class Game:
             pyxel.circ(table[0], table[1], self.table_radius - 1, 9)
 
         # Draw player
-        pyxel.rect(self.player_x, self.player_y, self.player_size, self.player_size, 8)
-        pyxel.rect(
-            self.player_x + 1,
-            self.player_y + 1,
-            self.player_size - 2,
-            self.player_size - 2,
+        pyxel.circ(self.player_x, self.player_y, self.player_size, 8)
+        pyxel.circ(
+            self.player_x,
+            self.player_y,
+            self.player_size - 1,
             9
         )
 
