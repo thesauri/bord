@@ -12,6 +12,7 @@ class Game:
         self.max_capacity = 4
         self.table_capacity = 3
         self.chair_capacity = 1
+        self.is_game_over = False
 
         pyxel.init(self.width, self.height, title="Room with Tables and Chairs")
 
@@ -78,6 +79,10 @@ class Game:
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
+
+        if len(self.chairs) == 0 and len(self.tables) == 0:
+            self.is_game_over = True
+            return
 
         original_x = self.player_x
         original_y = self.player_y
@@ -153,5 +158,7 @@ class Game:
                 1, 1, red_if_used_otherwise_green
             )
 
+        if self.is_game_over:
+            pyxel.text(self.width/2 - 18, self.height/2, "Game over", pyxel.frame_count % 16)
 
 Game()
