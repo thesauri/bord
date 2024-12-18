@@ -1,5 +1,5 @@
 import pyxel
-import dumbster
+from dumbster_bot import DumbsterBot
 
 
 def is_player_overlapping_circular_object(player, position, radius):
@@ -17,6 +17,13 @@ def is_player_overlapping_rectangle(player, rectangle):
         and player.position[0] < rx + rw
         and player.position[1] < ry + rh
     )
+
+
+def is_player_hitting_player(player1, player2):
+    return (
+        pow(player1.position[0] - player2.position[0], 2)
+        + pow(player1.position[1] - player2.position[1], 2)
+    ) < pow(player1.player_radius + player2.player_radius, 2)
 
 
 class Game:
@@ -41,7 +48,7 @@ class Game:
         self.players = [
             Player(
                 self,
-                dumbster.get_action,
+                DumbsterBot(),
                 [
                     self.width / 2 - self.cart_width / 4 - 2,
                     self.height - self.cart_height / 2 - 2,
@@ -49,7 +56,7 @@ class Game:
             ),
             Player(
                 self,
-                dumbster.get_action,
+                DumbsterBot(),
                 [
                     self.width / 2 + self.cart_width / 4 - 2,
                     self.height - self.cart_height / 2 - 2,
@@ -131,12 +138,18 @@ class Game:
             return
 
         for player in self.players:
-            original_position = player.position
+            original_position = player.position.copy()
 
             player.update(self.chairs, self.tables, self.cart)
 
             if self.is_player_hitting_wall(player):
                 player.position = original_position
+
+            for other_player in self.players:
+                if player != other_player and is_player_hitting_player(
+                    player, other_player
+                ):
+                    player.position = original_position
 
             for chair in self.chairs:
                 if (
@@ -228,9 +241,9 @@ class Game:
 
 
 class Player:
-    def __init__(self, game, get_action, start_position):
+    def __init__(self, game, bot, start_position):
         self.game = game
-        self.get_action = get_action
+        self.bot = bot
 
         # Player properties
         self.player_radius = 4
@@ -241,7 +254,7 @@ class Player:
         self.score = 0
 
     def update(self, chairs, tables, cart):
-        action = dumbster.get_action(self.position, self.capacity, chairs, tables, cart)
+        action = self.bot.get_action(self.position, self.capacity, chairs, tables, cart)
 
         if action == "LEFT":
             self.position[0] -= self.player_speed
