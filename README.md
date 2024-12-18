@@ -1,5 +1,7 @@
 # Bord
 
+![Demo](.docs/demo.gif)
+
 Bord is a chair and table collecting game intended for bot tournaments.
 The goal is simple: collect as many chairs and tables as possible.
 
