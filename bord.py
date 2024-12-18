@@ -1,30 +1,8 @@
 import pyxel
-from dumbster_bot import DumbsterBot
-from human_bot import HumanBot
-
-
-def is_player_overlapping_circular_object(player, position, radius):
-    cx, cy = position
-    return pow(cx - player.position[0], 2) + pow(cy - player.position[1], 2) < pow(
-        radius + player.player_radius, 2
-    )
-
-
-def is_player_overlapping_rectangle(player, rectangle):
-    rx, ry, rw, rh = rectangle
-    return (
-        player.position[0] > rx
-        and player.position[1] > ry
-        and player.position[0] < rx + rw
-        and player.position[1] < ry + rh
-    )
-
-
-def is_player_hitting_player(player1, player2):
-    return (
-        pow(player1.position[0] - player2.position[0], 2)
-        + pow(player1.position[1] - player2.position[1], 2)
-    ) < pow(player1.player_radius + player2.player_radius, 2)
+from bots.dumbster_bot import DumbsterBot
+from bots.human_bot import HumanBot
+from player import Player
+from utils import *
 
 
 class Game:
@@ -40,7 +18,7 @@ class Game:
         self.chair_capacity = 1
         self.is_game_over = False
 
-        pyxel.init(self.width, self.height, title="Room with Tables and Chairs")
+        pyxel.init(self.width, self.height, title="Bord")
 
         # Wall properties
         self.wall_thickness = 4
@@ -111,20 +89,6 @@ class Game:
 
         pyxel.run(self.update, self.draw)
 
-    def is_player_hitting_wall(self, player):
-        return (
-            (player.position[1] < self.wall_thickness + player.player_radius)
-            or (
-                player.position[0]
-                > self.width - self.wall_thickness - player.player_radius
-            )
-            or (
-                player.position[1]
-                > self.height - self.wall_thickness - player.player_radius
-            )
-            or (player.position[0] < self.wall_thickness + player.player_radius)
-        )
-
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
@@ -143,7 +107,9 @@ class Game:
 
             player.update(self.chairs, self.tables, self.cart, self.players)
 
-            if self.is_player_hitting_wall(player):
+            if is_player_hitting_wall(
+                player, self.width, self.height, self.wall_thickness
+            ):
                 player.position = original_position
 
             for other_player in self.players:
@@ -239,34 +205,6 @@ class Game:
                     f"Player {i+1}: {player.score} points",
                     pyxel.frame_count % 16,
                 )
-
-
-class Player:
-    def __init__(self, game, bot, start_position):
-        self.game = game
-        self.bot = bot
-
-        # Player properties
-        self.player_radius = 4
-        self.position = start_position
-        self.player_speed = 2
-        self.capacity = 0
-        self.max_capacity = 4
-        self.score = 0
-
-    def update(self, chairs, tables, cart, players):
-        action = self.bot.get_action(
-            self.position, self.capacity, chairs, tables, cart, players
-        )
-
-        if action == "LEFT":
-            self.position[0] -= self.player_speed
-        if action == "RIGHT":
-            self.position[0] += self.player_speed
-        if action == "UP":
-            self.position[1] -= self.player_speed
-        if action == "DOWN":
-            self.position[1] += self.player_speed
 
 
 Game()
