@@ -1,5 +1,3 @@
-import pyxel
-
 player_radius = 4
 
 

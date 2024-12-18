@@ -1,5 +1,6 @@
 import pyxel
 from dumbster_bot import DumbsterBot
+from human_bot import HumanBot
 
 
 def is_player_overlapping_circular_object(player, position, radius):
@@ -48,7 +49,7 @@ class Game:
         self.players = [
             Player(
                 self,
-                DumbsterBot(),
+                HumanBot(),
                 [
                     self.width / 2 - self.cart_width / 4 - 2,
                     self.height - self.cart_height / 2 - 2,
