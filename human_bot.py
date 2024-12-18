@@ -2,7 +2,7 @@ import pyxel
 
 
 class HumanBot:
-    def get_action(self, position, capacity, chairs, tables, cart):
+    def get_action(self, position, capacity, chairs, tables, cart, players):
         if pyxel.btn(pyxel.KEY_UP):
             return "UP"
         if pyxel.btn(pyxel.KEY_RIGHT):

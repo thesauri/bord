@@ -141,7 +141,7 @@ class Game:
         for player in self.players:
             original_position = player.position.copy()
 
-            player.update(self.chairs, self.tables, self.cart)
+            player.update(self.chairs, self.tables, self.cart, self.players)
 
             if self.is_player_hitting_wall(player):
                 player.position = original_position
@@ -254,8 +254,10 @@ class Player:
         self.max_capacity = 4
         self.score = 0
 
-    def update(self, chairs, tables, cart):
-        action = self.bot.get_action(self.position, self.capacity, chairs, tables, cart)
+    def update(self, chairs, tables, cart, players):
+        action = self.bot.get_action(
+            self.position, self.capacity, chairs, tables, cart, players
+        )
 
         if action == "LEFT":
             self.position[0] -= self.player_speed
