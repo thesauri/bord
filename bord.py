@@ -194,17 +194,33 @@ class Game:
             pyxel.text(
                 self.width / 2 - 18,
                 self.height / 2 - 20,
-                "Game over",
+                "GAME OVER",
                 pyxel.frame_count % 16,
             )
 
-            for i, player in enumerate(self.players):
+            players_by_score_desc = sorted(
+                self.players, key=lambda player: player.score, reverse=True
+            )
+            for i, player in enumerate(players_by_score_desc):
+                alignment_spaces = (8 - len(player.name)) * " "
                 pyxel.text(
-                    self.width / 2 - 32,
+                    self.width / 2 - 48,
                     self.height / 2 + 10 * i,
-                    f"Player {i+1}: {player.score} points",
+                    f"PLAYER {player.name}:{alignment_spaces} {player.score} POINTS",
                     pyxel.frame_count % 16,
                 )
+        else:
+            self.draw_scoreboard()
+
+    def draw_scoreboard(self):
+        for i, player in enumerate(self.players):
+            alignment_spaces = (8 - len(player.name)) * " "
+            pyxel.text(
+                5,
+                5 + 10 * i,
+                f"{player.name}:{alignment_spaces} {player.score}P",
+                7,
+            )
 
 
 Game()

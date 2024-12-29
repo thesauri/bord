@@ -14,6 +14,10 @@ class DumbsterBot:
         if len(tables) > 0:
             return get_direction(position, tables[0])
 
+    def get_name(self):
+        """Get the name of the bot (maximum 8 characters)"""
+        return "Dumbster"
+
 
 def get_direction(position, target):
     x, y = position

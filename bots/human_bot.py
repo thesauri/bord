@@ -13,3 +13,7 @@ class HumanBot:
             return "LEFT"
 
         return "STOP"
+
+    def get_name(self):
+        """Get the name of the bot (maximum 8 characters)"""
+        return "Human"
