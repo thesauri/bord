@@ -24,8 +24,8 @@ class DumbsterBot:
         return 7
 
     def get_name(self):
-        """Get the name of the bot (maximum 8 characters)"""
-        return "Dumbster"
+        """Get the name of the bot (maximum 4 characters)"""
+        return "Dumb"
 
 
 def get_direction(position, target):

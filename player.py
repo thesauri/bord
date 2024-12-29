@@ -11,9 +11,9 @@ class Player:
         self.score = 0
 
         self.name = bot.get_name().upper()
-        if len(self.name) > 8:
+        if len(self.name) > 4:
             raise ValueError(
-                f"The name of the bot ${self.name} must be less than 8 characters"
+                f"The name of the bot ${self.name} must be less than 4 characters"
             )
 
     def update(self, chairs, tables, cart, players):

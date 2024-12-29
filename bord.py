@@ -13,7 +13,8 @@ class Game:
         self.chair_radius = 2
         self.chair_offset = 2
         self.cart_width = 40
-        self.cart_height = 20
+        self.cart_height = 24
+        self.cart_offset = 12
         self.table_capacity = 3
         self.chair_capacity = 1
         self.is_game_over = False
@@ -22,7 +23,7 @@ class Game:
         pyxel.screen_mode(2)
 
         # Wall properties
-        self.wall_thickness = 4
+        self.wall_thickness = 0
 
         # Players
         self.players = [
@@ -30,16 +31,32 @@ class Game:
                 self,
                 HumanBot(),
                 [
-                    self.width / 2 - self.cart_width / 4 - 2,
-                    self.height - self.cart_height / 2 - 2,
+                    self.width / 2 - self.cart_width / 4,
+                    self.height - 3 * self.cart_height / 4,
                 ],
             ),
             Player(
                 self,
                 DumbsterBot(),
                 [
-                    self.width / 2 + self.cart_width / 4 - 2,
-                    self.height - self.cart_height / 2 - 2,
+                    self.width / 2 - self.cart_width / 4,
+                    self.height - 1 * self.cart_height / 4,
+                ],
+            ),
+            Player(
+                self,
+                DumbsterBot(),
+                [
+                    self.width / 2 + self.cart_width / 4,
+                    self.height - 3 * self.cart_height / 4,
+                ],
+            ),
+            Player(
+                self,
+                DumbsterBot(),
+                [
+                    self.width / 2 + self.cart_width / 4,
+                    self.height - 1 * self.cart_height / 4,
                 ],
             ),
         ]

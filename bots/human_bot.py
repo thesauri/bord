@@ -24,5 +24,5 @@ class HumanBot:
         return 7
 
     def get_name(self):
-        """Get the name of the bot (maximum 8 characters)"""
-        return "Human"
+        """Get the name of the bot (maximum 4 characters)"""
+        return "Man"
