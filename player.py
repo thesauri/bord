@@ -1,5 +1,7 @@
 class Player:
     def __init__(self, game, bot, start_position):
+        self.friends = None
+        self.foes = None
         self.game = game
         self.bot = bot
 
@@ -16,9 +18,13 @@ class Player:
                 f"The name of the bot ${self.name} must be less than 4 characters"
             )
 
-    def update(self, chairs, tables, cart, players):
+    def set_friends_and_foes(self, friends, foes):
+        self.friends = friends
+        self.foes = foes
+
+    def update(self, chairs, tables, cart):
         action = self.bot.get_action(
-            self.position, self.capacity, chairs, tables, cart, players
+            self.position, self.capacity, chairs, tables, cart, self.friends, self.foes
         )
 
         if action == "LEFT":

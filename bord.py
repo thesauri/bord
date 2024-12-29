@@ -61,6 +61,25 @@ class Game:
             ),
         ]
 
+        # Team up player 1 with player 2 and player 3 with player 4
+        self.teams = [
+            [self.players[0], self.players[1]],
+            [self.players[2], self.players[3]],
+        ]
+
+        self.players[0].set_friends_and_foes(
+            [self.players[1]], [self.players[2], self.players[3]]
+        )
+        self.players[1].set_friends_and_foes(
+            [self.players[0]], [self.players[2], self.players[3]]
+        )
+        self.players[2].set_friends_and_foes(
+            [self.players[3]], [self.players[0], self.players[1]]
+        )
+        self.players[3].set_friends_and_foes(
+            [self.players[2]], [self.players[0], self.players[1]]
+        )
+
         # Cart (for returning stuff)
         self.cart = [
             self.width / 2 - self.cart_width / 2,
@@ -123,7 +142,7 @@ class Game:
         for player in self.players:
             original_position = player.position.copy()
 
-            player.update(self.chairs, self.tables, self.cart, self.players)
+            player.update(self.chairs, self.tables, self.cart)
 
             if is_player_hitting_wall(
                 player, self.width, self.height, self.wall_thickness
@@ -205,6 +224,7 @@ class Game:
                     red_if_used_otherwise_green,
                 )
 
+        self.draw_scoreboard()
         if self.is_game_over:
             pyxel.text(
                 self.width / 2 - 18,
@@ -213,29 +233,18 @@ class Game:
                 pyxel.frame_count % 16,
             )
 
-            players_by_score_desc = sorted(
-                self.players, key=lambda player: player.score, reverse=True
-            )
-            for i, player in enumerate(players_by_score_desc):
-                alignment_spaces = (8 - len(player.name)) * " "
-                pyxel.text(
-                    self.width / 2 - 48,
-                    self.height / 2 + 10 * i,
-                    f"PLAYER {player.name}:{alignment_spaces} {player.score} POINTS",
-                    pyxel.frame_count % 16,
-                )
-        else:
-            self.draw_scoreboard()
-
     def draw_scoreboard(self):
-        for i, player in enumerate(self.players):
-            alignment_spaces = (8 - len(player.name)) * " "
-            draw_player(player, [9, 9 + 10 * i])
+        for i, team in enumerate(self.teams):
+            team_score = sum([player.score for player in team])
+            player_names = f"{team[0].name}&{team[1].name}"
+            alignment_spaces = (9 - len(player_names)) * " "
+            draw_player(team[0], [9, 9 + 10 * i])
+            draw_player(team[1], [20, 9 + 10 * i])
             pyxel.text(
-                16,
+                29,
                 7 + 10 * i,
-                f"{player.name}:{alignment_spaces} {player.score}P",
-                7,
+                f"{player_names}:{alignment_spaces} {team_score}P",
+                pyxel.frame_count % 16 if self.is_game_over else 7,
             )
 
 

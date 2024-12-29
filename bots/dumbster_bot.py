@@ -2,7 +2,7 @@ player_radius = 4
 
 
 class DumbsterBot:
-    def get_action(self, position, capacity, chairs, tables, cart, players):
+    def get_action(self, position, capacity, chairs, tables, cart, friends, foes):
         if capacity > 1 or (len(chairs) == 0 and len(tables) == 0):
             return get_direction(
                 position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2]
