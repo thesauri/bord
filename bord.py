@@ -174,10 +174,7 @@ class Game:
 
         # Draw the players
         for player in self.players:
-            pyxel.circ(player.position[0], player.position[1], player.player_radius, 8)
-            pyxel.circ(
-                player.position[0], player.position[1], player.player_radius - 1, 9
-            )
+            draw_player(player, player.position)
 
             # Draw capacity indicator
             for n in range(0, player.max_capacity):
@@ -215,12 +212,34 @@ class Game:
     def draw_scoreboard(self):
         for i, player in enumerate(self.players):
             alignment_spaces = (8 - len(player.name)) * " "
+            draw_player(player, [9, 9 + 10 * i])
             pyxel.text(
-                5,
-                5 + 10 * i,
+                16,
+                7 + 10 * i,
                 f"{player.name}:{alignment_spaces} {player.score}P",
                 7,
             )
+
+
+def draw_player(player, position):
+    pyxel.circ(
+        position[0],
+        position[1],
+        player.player_radius,
+        player.bot.get_border_color(),
+    )
+    pyxel.circ(
+        position[0],
+        position[1],
+        player.player_radius - 1,
+        player.bot.get_fill_color(),
+    )
+    pyxel.text(
+        position[0] - 1,
+        position[1] - 2,
+        player.name[0],
+        player.bot.get_name_initial_color(),
+    )
 
 
 Game()

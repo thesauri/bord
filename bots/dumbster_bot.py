@@ -14,6 +14,15 @@ class DumbsterBot:
         if len(tables) > 0:
             return get_direction(position, tables[0])
 
+    def get_fill_color(self):
+        return 8
+
+    def get_border_color(self):
+        return 7
+
+    def get_name_initial_color(self):
+        return 7
+
     def get_name(self):
         """Get the name of the bot (maximum 8 characters)"""
         return "Dumbster"
