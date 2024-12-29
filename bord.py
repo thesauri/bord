@@ -18,6 +18,7 @@ class Game:
         self.table_capacity = 3
         self.chair_capacity = 1
         self.is_game_over = False
+        self.is_player_collisions_enabled = False
 
         pyxel.init(self.width, self.height, title="Bord")
         pyxel.screen_mode(2)
@@ -37,7 +38,7 @@ class Game:
             ),
             Player(
                 self,
-                DumbsterBot(),
+                HumanBot(),
                 [
                     self.width / 2 - self.cart_width / 4,
                     self.height - 1 * self.cart_height / 4,
@@ -150,8 +151,10 @@ class Game:
                 player.position = original_position
 
             for other_player in self.players:
-                if player != other_player and is_player_hitting_player(
-                    player, other_player
+                if (
+                    player != other_player
+                    and self.is_player_collisions_enabled
+                    and is_player_hitting_player(player, other_player)
                 ):
                     player.position = original_position
 
@@ -228,7 +231,7 @@ class Game:
         if self.is_game_over:
             pyxel.text(
                 self.width / 2 - 18,
-                self.height / 2 - 20,
+                self.height / 2 - 10,
                 "GAME OVER",
                 pyxel.frame_count % 16,
             )
