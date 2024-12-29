@@ -19,6 +19,7 @@ class Game:
         self.is_game_over = False
 
         pyxel.init(self.width, self.height, title="Bord")
+        pyxel.screen_mode(2)
 
         # Wall properties
         self.wall_thickness = 4
