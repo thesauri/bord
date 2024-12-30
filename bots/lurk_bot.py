@@ -25,8 +25,6 @@ class LurkBot:
             ],
         )
 
-        return get_direction(position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2])
-
     def get_fill_color(self):
         return 0
 
