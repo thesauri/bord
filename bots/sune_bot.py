@@ -7,32 +7,23 @@ class SuneBot:
     secured_role = None
 
     def __init__(self):
-        self.role = "follow" if SuneBot.secured_role is None else SuneBot.secured_role
+        self.target = 0 if SuneBot.secured_role is None else 1
         SuneBot.secured_role = True
 
     def get_action(self, position, capacity, chairs, tables, cart, friends, foes):
-        if self.role == "follow":
-            if capacity > 1 or (len(chairs) == 0 and len(tables) == 0):
-                return get_direction(
-                    position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2]
-                )
-
-            dx = 10 if position[0] > 80 else -10
+        if capacity > 1 or (len(chairs) == 0 and len(tables) == 0):
             return get_direction(
-                position, [foes[0].position[0] + dx, foes[0].position[1] - 10]
+                position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2]
             )
 
-        if len(tables) > 0 and capacity <= 1:
-            sorted_tables = sorted(
-                tables, key=lambda chair: manhattan_distance(position, chair)
-            )
-            return get_direction(position, sorted_tables[0])
-
-        if len(chairs) > 0 and capacity < 4:
-            sorted_chairs = sorted(
-                chairs, key=lambda chair: manhattan_distance(position, chair)
-            )
-            return get_direction(position, sorted_chairs[0])
+        dx = 10 if position[0] > 80 else -10
+        return get_direction(
+            position,
+            [
+                foes[self.target].position[0] + dx,
+                foes[self.target].position[1] - 10,
+            ],
+        )
 
         return get_direction(position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2])
 
@@ -47,7 +38,7 @@ class SuneBot:
 
     def get_name(self):
         """Get the name of the bot (maximum 4 characters)"""
-        return "LURK" if self.role == "follow" else "DUMB"
+        return "LURK" if self.target == 0 else "DERP"
 
 
 def manhattan_distance(a, b):
