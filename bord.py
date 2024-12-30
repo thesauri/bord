@@ -21,9 +21,10 @@ class Game:
         self.table_capacity = 3
         self.chair_capacity = 1
         self.is_player_collisions_enabled = False
-        self.phase = Phase.COUNTDOWN
+        self.phase = Phase.PRESENTATION
+        self.game_started_at_millis = time() * 1_000
         self.countdown_millis = 3 * 1_000
-        self.countdown_started_at_millis = time() * 1_000
+        self.countdown_started_at_millis = None
 
         pyxel.init(self.width, self.height, title="Bord")
         pyxel.screen_mode(2)
@@ -33,7 +34,7 @@ class Game:
             "p",
             "7",
             "NNNF NNNF NNNF NNNN NN",
-            30,
+            29,
         )
         pyxel.sounds[Sounds.CHAIR.value].set("e2", "p", "7", "NN", 15)
         pyxel.sounds[Sounds.TABLE.value].set("g#2", "p", "7", "NN", 15)
@@ -72,7 +73,37 @@ class Game:
             [Sounds.FANFARE_BASS.value],
         )
 
-        pyxel.play(0, Sounds.STARTING.value)
+        # Opening fanfare
+        pyxel.sounds[Sounds.OPENING_MAIN.value].set(
+            "e3e3e3b3 e4e4e4b3 g#3b3e4g#4 e4b3g#3e3 b2e3g#3b3 e4b3g#3e3 e3g#3b3e4 e4e4e4e4 e4e4e4e4",
+            "p",
+            "7777 7777 7777 7777 7777 7777 7777 7777 7777",
+            "NNNN NNNN NNNN NNNN NNNN NNNN NNNN VVVV VVVV",
+            15,
+        )
+
+        pyxel.sounds[Sounds.OPENING_HARMONY.value].set(
+            "g#3g#3g#3e4 g#4g#4g#4e4 b3e4g#4b4 g#4e4b3g#3 e3g#3b3e4 g#4e4b3g#3 g#3b3e4g#4 b4b4b4b4 b4b4b4b4",
+            "p",
+            "5555 5555 5555 5555 5555 5555 5555 5555 5555",
+            "NNNN NNNN NNNN NNNN NNNN NNNN NNNN VVVV VVVV",
+            15,
+        )
+
+        pyxel.sounds[Sounds.OPENING_BASS.value].set(
+            "e2b2e2b2 e2b2e2b2 e2g#2b2e3 e2b2e2b2 e2b2e2b2 e2b2g#2e2 e2b2e3b3 e2e2e2e2 e2e2e2e2",
+            "p",
+            "6666 6666 6666 6666 6666 6666 6666 6666 6666",
+            "NNNN NNNN NNNN NNNN NNNN NNNN NNNN VVVV VVVV",
+            15,
+        )
+        pyxel.musics[1].set(
+            [Sounds.OPENING_MAIN.value],
+            [Sounds.OPENING_HARMONY.value],
+            [Sounds.OPENING_BASS.value],
+        )
+
+        pyxel.playm(1)
 
         # Wall properties
         self.wall_thickness = 0
@@ -184,6 +215,12 @@ class Game:
 
         match self.phase:
             case Phase.PRESENTATION:
+                time_now_millis = time() * 1_000
+                millis_elapsed = time_now_millis - self.game_started_at_millis
+                if millis_elapsed > 5_000:
+                    self.phase = Phase.COUNTDOWN
+                    self.countdown_started_at_millis = time_now_millis
+                    pyxel.play(0, Sounds.STARTING.value)
                 return
             case Phase.COUNTDOWN:
                 millis_remaining = self.countdown_millis - (
@@ -206,6 +243,7 @@ class Game:
 
         match self.phase:
             case Phase.PRESENTATION:
+                self.draw_presentation()
                 return
             case Phase.COUNTDOWN:
                 self.draw_gameboard()
@@ -338,6 +376,27 @@ class Game:
 
         self.draw_scoreboard()
 
+    def draw_presentation(self):
+        pyxel.text(self.width / 2 - 10, self.height / 2, "VS", 7)
+
+        draw_player(self.players[0], [20, self.height / 2 - 20])
+        draw_player(self.players[1], [32, self.height / 2 - 20])
+        pyxel.text(
+            44,
+            self.height / 2 - 22,
+            f"{self.players[0].name}&{self.players[1].name}",
+            pyxel.frame_count % 16,
+        )
+
+        draw_player(self.players[2], [self.width - 20, self.height / 2 + 20])
+        draw_player(self.players[3], [self.width - 32, self.height / 2 + 20])
+        pyxel.text(
+            self.width - 74,
+            self.height / 2 + 18,
+            f"{self.players[2].name}&{self.players[3].name}",
+            pyxel.frame_count % 16,
+        )
+
     def draw_scoreboard(self):
         for i, team in enumerate(self.teams):
             team_score = sum([player.score for player in team])
@@ -376,6 +435,9 @@ class Sounds(Enum):
     FANFARE_MAIN = 4
     FANFARE_HARMONY = 5
     FANFARE_BASS = 6
+    OPENING_MAIN = 7
+    OPENING_HARMONY = 8
+    OPENING_BASS = 9
 
 
 def draw_player(player, position):
