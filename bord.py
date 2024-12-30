@@ -27,6 +27,7 @@ class Game:
         self.game_started_at_millis = time() * 1_000
         self.countdown_millis = 3 * 1_000
         self.countdown_started_at_millis = None
+        self.is_starting_position_randomized = True
 
         pyxel.init(self.width, self.height, title="Bord")
         pyxel.screen_mode(2)
@@ -110,60 +111,69 @@ class Game:
         # Wall properties
         self.wall_thickness = 0
 
+        front_positions = [
+            [
+                self.width / 2 - self.cart_width / 4,
+                self.height - 3 * self.cart_height / 4,
+            ],
+            [
+                self.width / 2 + self.cart_width / 4,
+                self.height - 3 * self.cart_height / 4,
+            ],
+        ]
+        back_positions = [
+            [
+                self.width / 2 - self.cart_width / 4,
+                self.height - 1 * self.cart_height / 4,
+            ],
+            [
+                self.width / 2 + self.cart_width / 4,
+                self.height - 1 * self.cart_height / 4,
+            ],
+        ]
+        if self.is_starting_position_randomized:
+            shuffle(front_positions)
+            shuffle(back_positions)
+
         # Players
+        player1 = Player(
+            self,
+            HumanBot(),
+            front_positions[0],
+        )
+        player2 = Player(
+            self,
+            HumanBot(),
+            back_positions[0],
+        )
+        player3 = Player(
+            self,
+            DumbsterBot(),
+            front_positions[1],
+        )
+        player4 = Player(
+            self,
+            DumbsterBot(),
+            back_positions[1],
+        )
+
         self.players = [
-            Player(
-                self,
-                HumanBot(),
-                [
-                    self.width / 2 - self.cart_width / 4,
-                    self.height - 3 * self.cart_height / 4,
-                ],
-            ),
-            Player(
-                self,
-                HumanBot(),
-                [
-                    self.width / 2 - self.cart_width / 4,
-                    self.height - 1 * self.cart_height / 4,
-                ],
-            ),
-            Player(
-                self,
-                DumbsterBot(),
-                [
-                    self.width / 2 + self.cart_width / 4,
-                    self.height - 3 * self.cart_height / 4,
-                ],
-            ),
-            Player(
-                self,
-                DumbsterBot(),
-                [
-                    self.width / 2 + self.cart_width / 4,
-                    self.height - 1 * self.cart_height / 4,
-                ],
-            ),
+            player1,
+            player2,
+            player3,
+            player4,
         ]
 
         # Team up player 1 with player 2 and player 3 with player 4
         self.teams = [
-            [self.players[0], self.players[1]],
-            [self.players[2], self.players[3]],
+            [player1, player2],
+            [player3, player4],
         ]
 
-        self.players[0].set_friends_and_foes(
-            [self.players[1]], [self.players[2], self.players[3]]
-        )
-        self.players[1].set_friends_and_foes(
-            [self.players[0]], [self.players[2], self.players[3]]
-        )
-        self.players[2].set_friends_and_foes(
-            [self.players[3]], [self.players[0], self.players[1]]
-        )
-        self.players[3].set_friends_and_foes(
-            [self.players[2]], [self.players[0], self.players[1]]
-        )
+        player1.set_friends_and_foes([player2], [player3, player4])
+        player2.set_friends_and_foes([player1], [player3, player4])
+        player3.set_friends_and_foes([player4], [player1, player2])
+        player4.set_friends_and_foes([player3], [player1, player2])
 
         # Cart (for returning stuff)
         self.cart = [
