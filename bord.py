@@ -1,7 +1,9 @@
 import pyxel
 from bots.dumbster_bot import DumbsterBot
 from bots.human_bot import HumanBot
+from time import time
 from enum import Enum
+import math
 from player import Player
 from utils import *
 
@@ -19,7 +21,9 @@ class Game:
         self.table_capacity = 3
         self.chair_capacity = 1
         self.is_player_collisions_enabled = False
-        self.phase = Phase.PLAYING
+        self.phase = Phase.COUNTDOWN
+        self.countdown_millis = 3 * 1_000
+        self.countdown_started_at_millis = time() * 1_000
 
         pyxel.init(self.width, self.height, title="Bord")
         pyxel.screen_mode(2)
@@ -136,6 +140,11 @@ class Game:
             case Phase.PRESENTATION:
                 return
             case Phase.COUNTDOWN:
+                millis_remaining = self.countdown_millis - (
+                    time() * 1_000 - self.countdown_started_at_millis
+                )
+                if millis_remaining <= 0:
+                    self.phase = Phase.PLAYING
                 return
             case Phase.PLAYING:
                 self.update_game()
@@ -154,6 +163,7 @@ class Game:
                 return
             case Phase.COUNTDOWN:
                 self.draw_gameboard()
+                self.draw_countdown()
                 return
             case Phase.PLAYING:
                 self.draw_gameboard()
@@ -216,6 +226,21 @@ class Game:
             if is_player_overlapping_rectangle(player, self.cart):
                 player.score += player.capacity
                 player.capacity = 0
+
+    def draw_countdown(self):
+        time_remaining_millis = self.countdown_millis - (
+            time() * 1_000 - self.countdown_started_at_millis
+        )
+        time_remaining_seconds = math.ceil(time_remaining_millis / 1_000)
+        dy = 2 * math.cos(
+            4 * math.pi * (self.countdown_millis - time_remaining_millis) / 1_000
+        )
+        pyxel.text(
+            self.width / 2 - 24,
+            self.height / 2 - 10 + dy,
+            f"STARTING IN {time_remaining_seconds}",
+            7,
+        )
 
     def draw_gameboard(self):
         # Draw walls
