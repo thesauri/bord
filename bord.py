@@ -1,3 +1,5 @@
+from random import shuffle
+
 import pyxel
 from bots.dumbster_bot import DumbsterBot
 from bots.human_bot import HumanBot
@@ -270,7 +272,10 @@ class Game:
             pyxel.play(0, Sounds.FANFARE_MAIN.value)
             return
 
-        for i, player in enumerate(self.players):
+        players_with_index = list(enumerate(self.players))
+        shuffle(players_with_index)
+
+        for i, player in players_with_index:
             original_position = player.position.copy()
 
             player.update(self.chairs, self.tables, self.cart)
