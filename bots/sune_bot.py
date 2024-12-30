@@ -4,12 +4,23 @@ player_radius = 4
 
 
 class SuneBot:
-    targets = []
+    secured_role = None
 
     def __init__(self):
-        pass
+        self.role = "follow" if SuneBot.secured_role is None else SuneBot.secured_role
+        SuneBot.secured_role = True
 
     def get_action(self, position, capacity, chairs, tables, cart, friends, foes):
+        if self.role == "follow":
+            if capacity > 1:
+                return get_direction(
+                    position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2]
+                )
+
+            return get_direction(
+                position, [foes[0].position[0], foes[0].position[1] - 10]
+            )
+
         if len(tables) > 0 and capacity <= 1:
             sorted_tables = sorted(
                 tables, key=lambda chair: manhattan_distance(position, chair)
@@ -25,17 +36,17 @@ class SuneBot:
         return get_direction(position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2])
 
     def get_fill_color(self):
-        return 10
+        return 0
 
     def get_border_color(self):
-        return 5
+        return 1
 
     def get_name_initial_color(self):
-        return 5
+        return 7
 
     def get_name(self):
         """Get the name of the bot (maximum 4 characters)"""
-        return "Tune"
+        return "EEEH" if self.role == "follow" else "Tune"
 
 
 def manhattan_distance(a, b):
