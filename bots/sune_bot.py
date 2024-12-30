@@ -12,13 +12,14 @@ class SuneBot:
 
     def get_action(self, position, capacity, chairs, tables, cart, friends, foes):
         if self.role == "follow":
-            if capacity > 1:
+            if capacity > 1 or (len(chairs) == 0 and len(tables) == 0):
                 return get_direction(
                     position, [cart[0] + cart[2] / 2, cart[1] + cart[3] / 2]
                 )
 
+            dx = 10 if position[0] > 80 else -10
             return get_direction(
-                position, [foes[0].position[0], foes[0].position[1] - 10]
+                position, [foes[0].position[0] + dx, foes[0].position[1] - 10]
             )
 
         if len(tables) > 0 and capacity <= 1:
@@ -46,7 +47,7 @@ class SuneBot:
 
     def get_name(self):
         """Get the name of the bot (maximum 4 characters)"""
-        return "EEEH" if self.role == "follow" else "Tune"
+        return "LURK" if self.role == "follow" else "DUMB"
 
 
 def manhattan_distance(a, b):
