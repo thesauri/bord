@@ -1,6 +1,7 @@
 import pyxel
 from bots.dumbster_bot import DumbsterBot
 from bots.human_bot import HumanBot
+from enum import Enum
 from player import Player
 from utils import *
 
@@ -17,8 +18,8 @@ class Game:
         self.cart_offset = 12
         self.table_capacity = 3
         self.chair_capacity = 1
-        self.is_game_over = False
         self.is_player_collisions_enabled = False
+        self.phase = Phase.PLAYING
 
         pyxel.init(self.width, self.height, title="Bord")
         pyxel.screen_mode(2)
@@ -131,13 +132,47 @@ class Game:
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
+        match self.phase:
+            case Phase.PRESENTATION:
+                return
+            case Phase.COUNTDOWN:
+                return
+            case Phase.PLAYING:
+                self.update_game()
+                return
+            case Phase.GAME_OVER:
+                return
+            case _:
+                return
+
+    def draw(self):
+        # Clear screen
+        pyxel.cls(1)
+
+        match self.phase:
+            case Phase.PRESENTATION:
+                return
+            case Phase.COUNTDOWN:
+                self.draw_gameboard()
+                return
+            case Phase.PLAYING:
+                self.draw_gameboard()
+                return
+            case Phase.GAME_OVER:
+                self.draw_gameboard()
+                self.draw_game_over()
+                return
+            case _:
+                return
+
+    def update_game(self):
         is_all_capacity_zero = True
         for player in self.players:
             if not player.capacity == 0:
                 is_all_capacity_zero = False
 
         if is_all_capacity_zero and len(self.chairs) == 0 and len(self.tables) == 0:
-            self.is_game_over = True
+            self.phase = Phase.GAME_OVER
             return
 
         for player in self.players:
@@ -182,10 +217,7 @@ class Game:
                 player.score += player.capacity
                 player.capacity = 0
 
-    def draw(self):
-        # Clear screen
-        pyxel.cls(1)
-
+    def draw_gameboard(self):
         # Draw walls
         pyxel.rect(0, 0, self.width, self.height, 5)  # Outer wall
         pyxel.rect(
@@ -228,13 +260,6 @@ class Game:
                 )
 
         self.draw_scoreboard()
-        if self.is_game_over:
-            pyxel.text(
-                self.width / 2 - 18,
-                self.height / 2 - 10,
-                "GAME OVER",
-                pyxel.frame_count % 16,
-            )
 
     def draw_scoreboard(self):
         for i, team in enumerate(self.teams):
@@ -247,8 +272,23 @@ class Game:
                 29,
                 7 + 10 * i,
                 f"{player_names}:{alignment_spaces} {team_score}P",
-                pyxel.frame_count % 16 if self.is_game_over else 7,
+                pyxel.frame_count % 16 if self.phase == Phase.GAME_OVER else 7,
             )
+
+    def draw_game_over(self):
+        pyxel.text(
+            self.width / 2 - 18,
+            self.height / 2 - 10,
+            "GAME OVER",
+            pyxel.frame_count % 16,
+        )
+
+
+class Phase(Enum):
+    PRESENTATION = 1
+    COUNTDOWN = 2
+    PLAYING = 3
+    GAME_OVER = 4
 
 
 def draw_player(player, position):
