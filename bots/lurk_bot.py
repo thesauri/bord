@@ -3,12 +3,12 @@ import math
 player_radius = 4
 
 
-class SuneBot:
+class LurkBot:
     secured_role = None
 
     def __init__(self):
-        self.target = 0 if SuneBot.secured_role is None else 1
-        SuneBot.secured_role = True
+        self.target = 0 if LurkBot.secured_role is None else 1
+        LurkBot.secured_role = True
 
     def get_action(self, position, capacity, chairs, tables, cart, friends, foes):
         if capacity > 1 or (len(chairs) == 0 and len(tables) == 0):
