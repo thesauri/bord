@@ -28,6 +28,52 @@ class Game:
         pyxel.init(self.width, self.height, title="Bord")
         pyxel.screen_mode(2)
 
+        pyxel.sounds[Sounds.STARTING.value].set(
+            "g#2g#2g#2g#2 g#2g#2g#2g#2 g#2g#2g#2g#2 c#3c#3c#3c#3 c#3c#3",
+            "p",
+            "7",
+            "NNNF NNNF NNNF NNNN NN",
+            30,
+        )
+        pyxel.sounds[Sounds.CHAIR.value].set("e2", "p", "7", "NN", 15)
+        pyxel.sounds[Sounds.TABLE.value].set("g#2", "p", "7", "NN", 15)
+        pyxel.sounds[Sounds.RETURN.value].set("e2b2b2b2", "p", "7", "NNNN", 15)
+
+        pyxel.sounds[Sounds.FANFARE_MAIN.value].set(
+            "e2g#2b2e3 e3b2g#2e2 g#2b2e3g#3 e3b2g#2e2 e2g#2b2e3 g#3e3b2g#2 e2g#2b2e3 e3e3e3e3",
+            "p",
+            "7777 7777 7777 7777 7777 7777 7777 7777",
+            "NNNN NNNN NNNN NNNN NNNN NNNN NNNN VVVV",
+            20,
+        )
+
+        # Harmony part
+        pyxel.sounds[Sounds.FANFARE_HARMONY.value].set(
+            "b2e3g#3b3 b3g#3e3b2 e3g#3b3e4 b3g#3e3b2 b2e3g#3b3 e4b3g#3e3 b2e3g#3b3 b3b3b3b3",
+            "p",
+            "5555 5555 5555 5555 5555 5555 5555 5555",
+            "NNNN NNNN NNNN NNNN NNNN NNNN NNNN VVVV",
+            20,
+        )
+
+        # Bass line
+        pyxel.sounds[Sounds.FANFARE_BASS.value].set(
+            "e2e2b2b2 e2b2e2b2 e2e2b2b2 e2b2e2b2 e2e2b2b2 e2b2e2b2 e2e2b2b2 e2e2e2e2",
+            "p",
+            "6666 6666 6666 6666 6666 6666 6666 6666",
+            "NNNN NNNN NNNN NNNN NNNN NNNN NNNN VVVV",
+            20,
+        )
+
+        # Set up the music track with all three parts
+        pyxel.musics[0].set(
+            [Sounds.FANFARE_MAIN.value],
+            [Sounds.FANFARE_HARMONY.value],
+            [Sounds.FANFARE_BASS.value],
+        )
+
+        pyxel.play(0, Sounds.STARTING.value)
+
         # Wall properties
         self.wall_thickness = 0
 
@@ -183,9 +229,10 @@ class Game:
 
         if is_all_capacity_zero and len(self.chairs) == 0 and len(self.tables) == 0:
             self.phase = Phase.GAME_OVER
+            pyxel.play(0, Sounds.FANFARE_MAIN.value)
             return
 
-        for player in self.players:
+        for i, player in enumerate(self.players):
             original_position = player.position.copy()
 
             player.update(self.chairs, self.tables, self.cart)
@@ -211,6 +258,7 @@ class Game:
                     and player.capacity + self.chair_capacity <= player.max_capacity
                 ):
                     player.capacity += 1
+                    pyxel.play(i, Sounds.CHAIR.value)
                     self.chairs.remove(chair)
 
             for table in self.tables:
@@ -222,10 +270,14 @@ class Game:
                 ):
                     player.capacity += 3
                     self.tables.remove(table)
+                    pyxel.play(i, Sounds.TABLE.value)
 
             if is_player_overlapping_rectangle(player, self.cart):
+                previous_score = player.score
                 player.score += player.capacity
                 player.capacity = 0
+                if previous_score != player.score:
+                    pyxel.play(i, Sounds.RETURN.value)
 
     def draw_countdown(self):
         time_remaining_millis = self.countdown_millis - (
@@ -314,6 +366,16 @@ class Phase(Enum):
     COUNTDOWN = 2
     PLAYING = 3
     GAME_OVER = 4
+
+
+class Sounds(Enum):
+    STARTING = 0
+    CHAIR = 1
+    TABLE = 2
+    RETURN = 3
+    FANFARE_MAIN = 4
+    FANFARE_HARMONY = 5
+    FANFARE_BASS = 6
 
 
 def draw_player(player, position):
